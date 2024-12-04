@@ -47,7 +47,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   try {
     const isbn = req.params.isbn;
     const review = req.body.review;
-    const user = req.body.user;
+    const user = req.authorization.username;
   
     if (!review) {
       return res.status(400).json({ message: "Review content is required" });
@@ -59,9 +59,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
       return res.status(404).json({ message: "Book not found" });
     }
   
-    const reviewId = Date.now();
-    book.reviews[reviewId] = {
-      user: user || "Anonymous",
+    book.reviews[user || "Anonymous"] = {
       review: review,
     };
   
@@ -74,12 +72,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 // Delete a book review
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
-  const review = req.body.review;
-  const user = req.body.user;
-
-  if (!review) {
-    return res.status(400).json({ message: "Review content is required" });
-  }
+  const user = req.authorization.username;
 
   const book = books[isbn];
 
@@ -87,13 +80,9 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
     return res.status(404).json({ message: "Book not found" });
   }
 
-  const reviewId = Date.now();
-  book.reviews[reviewId] = {
-    user: user || "Anonymous",
-    review: review,
-  };
+  delete book.reviews[user];
 
-  return res.status(201).json({ message: "Review added successfully", reviews: book.reviews });
+  return res.status(201).json({ message: "Review deleted successfully", reviews: book.reviews });
 });
 
 module.exports.authenticated = regd_users;
