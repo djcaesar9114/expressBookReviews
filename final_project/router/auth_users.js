@@ -47,7 +47,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   try {
     const isbn = req.params.isbn;
     const review = req.body.review;
-    const user = req.authorization.username;
+    const user = req.session.authorization.username;
   
     if (!review) {
       return res.status(400).json({ message: "Review content is required" });
@@ -72,7 +72,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 // Delete a book review
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
-  const user = req.authorization.username;
+  const user = req.session.authorization.username;
 
   const book = books[isbn];
 
